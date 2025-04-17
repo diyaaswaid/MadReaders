@@ -98,4 +98,4 @@ if (user) {
   console.log("No user is signed in.");
 }
 
-logoutUser();
+// logoutUser();
