@@ -87,15 +87,3 @@ export const getCurrentUser = () => {
 //   "User",
 //   "test@gmail.com"
 // );
-
-login("testuser123", "Aa1#2345678");
-await new Promise((resolve) => setTimeout(resolve, 3000));
-
-const user = getCurrentUser();
-if (user) {
-  console.log("Logged-in User:", user.getUsername());
-} else {
-  console.log("No user is signed in.");
-}
-
-// logoutUser();

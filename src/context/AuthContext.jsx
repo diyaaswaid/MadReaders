@@ -9,32 +9,31 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        setIsAuthenticated(true);
-        setUser(currentUser);
-      } else {
+    const initializeAuth = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setIsAuthenticated(true);
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
         setIsAuthenticated(false);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Auth check error:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    initializeAuth();
+  }, []);
 
   const signIn = async (username, password) => {
     try {
       await login(username, password);
-      await checkAuth();
+      const currentUser = await getCurrentUser();
+      setIsAuthenticated(true);
+      setUser(currentUser);
       return true;
     } catch (error) {
       console.error("Sign in error:", error);
@@ -42,10 +41,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signOut = () => {
-    logoutUser();
-    setIsAuthenticated(false);
-    setUser(null);
+  const signOut = async () => {
+    try {
+      await logoutUser();
+      setIsAuthenticated(false);
+      setUser(null);
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const signUp = async (
@@ -83,11 +86,7 @@ export const AuthProvider = ({ children }) => {
     signUp,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
